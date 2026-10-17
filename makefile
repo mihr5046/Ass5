@@ -11,7 +11,7 @@ TARGET = slm
 TARGET_DEL = slm.exe
 
 # Source files
-SRCS = src/main.cpp src/textReader.cpp
+SRCS = src/slm.cpp src/textReader.cpp
 
 
 # Object files
