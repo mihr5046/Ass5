@@ -1,7 +1,9 @@
 #include <iostream>
-#include "textReader.h"
 #include <stdexcept>
 #include <string>
+
+#include "textReader.h"
+#include "languageModel.h"
 
 using namespace std;
 
@@ -38,16 +40,23 @@ int main(int argc, char* argv[]) {
 
 
 	//Test read a file
+	
+	string text;
+	textReader reader;
 	try {
-		textReader reader;
-		string text = reader.read(filename);
+		text = reader.read(filename);
 
-		cout << text;
+		//cout << text;
 	}
 	catch (const exception &e) {
 		cerr << "slm: " << e.what() << endl;
 		return 1;
 	}
+
+	LanguageModel model(k);
+	model.train(text);
+
+
 
 	return 0;
 }
