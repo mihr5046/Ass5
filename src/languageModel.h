@@ -42,7 +42,5 @@ class LanguageModel {
 
 		void print_trans();
 
-		void print_probs();
-
 };
 #endif

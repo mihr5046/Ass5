@@ -151,16 +151,3 @@ void LanguageModel::print_trans() {
 	}
 }
 
-/*
-void LanguageModel::print_probs() {
-	for (const auto& elem:trans_probs) {
-		cout << elem.first << " : {" << endl;
-		for (const auto& inner:elem.second) {
-			cout << "\t" << inner.first << " : " << inner.second << endl;
-		}
-		cout << "}" << endl;
-	}
-}
-*/
-
-
