@@ -10,14 +10,18 @@ using namespace std;
 LanguageModel::LanguageModel(size_t k) {
 	if (k<=0) {
 		throw invalid_argument(
-			"k-gram length must be positive"
+			"k must be strictly positive"
 			);
 	}
 	this->k = k;
 }
 
 void LanguageModel::train(const string &text) {
-	
+	if (text.size() < k) {
+		throw invalid_argument(
+				"training text too short. Text length must be greater than k."
+				);
+	}
 	for (char c : text) {
 		alphabet.insert(c);
 	}
@@ -44,13 +48,13 @@ string LanguageModel::generate(size_t length, double alpha) {
 	//Check arguments are valid.
 	if (length < k) {
 		throw invalid_argument(
-			"Reqested length too short. Must be greater than or equal to k."
+			"output length must be greater than or equal to k. Expected length >= "+to_string(k)+", got length = "+to_string(length)
 			);
 	}
 
-	if (alpha < 0 ) {
+	if (alpha < 0.0 ) {
 		throw invalid_argument(
-			"Pseudocount parameter alpha must be greater than or equal 0, got alpha = "+to_string(alpha)+"."
+			"alpha must be greater than or equal 0, got alpha = "+to_string(alpha)+"."
 			);
 	}
 
