@@ -15,6 +15,9 @@ class LanguageModel {
 		//map containing number of occurences of each k-gram
 		map<string, int> kgram_counts;
 		
+		//map containing number of transitions from a particular gram to a character
+		map<string, map<char, int>> trans_counts;
+		
 		//Set of all possible characters
 		set<char> alphabet;
 
@@ -32,6 +35,7 @@ class LanguageModel {
 		//Debugging funtions
 		void print_counts();
 
-};
+		void print_trans();
 
+};
 #endif
