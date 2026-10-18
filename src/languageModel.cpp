@@ -1,5 +1,6 @@
 #include "languageModel.h"
 #include <string>
+#include <vector>
 #include <stdexcept>
 #include <iostream>
 #include <random>
@@ -17,8 +18,6 @@ LanguageModel::LanguageModel(size_t k) {
 
 void LanguageModel::train(const string &text) {
 	
-	
-	
 	for (char c : text) {
 		alphabet.insert(c);
 	}
@@ -31,9 +30,16 @@ void LanguageModel::train(const string &text) {
 		trans_counts[gram][next_char]++;
 
 	}
+	
+	//Segregates kgram counts in to separate vectors.
+	for (const auto& entry:kgram_counts) {
+		grams.push_back(entry.first);
+		gram_counts.push_back(entry.second);
+	}
+
 }
 
-string LanguageModel::generate(size_t length, float alpha) {
+string LanguageModel::generate(size_t length, double alpha) {
 
 	//Check arguments are valid.
 	if (length < k) {
@@ -47,9 +53,17 @@ string LanguageModel::generate(size_t length, float alpha) {
 			"Pseudocount parameter alpha must be greater than or equal 0, got alpha = "+to_string(alpha)+"."
 			);
 	}
+
+	//Initialize variables
+	string starting_gram;
+	string output_text;
+	map<string, map<char, double>> trans_probs;
+	random_device r;
+	default_random_engine rng(r());
+
+
 	
 	//Calculate transition probabilities with pseudocount.
-	//map<string, map<char, float>> trans_probs;
 	for (const auto& i:trans_counts) {
 		string gram = i.first;
 		for (const auto& j:i.second) {
@@ -60,11 +74,48 @@ string LanguageModel::generate(size_t length, float alpha) {
 		}
 	}
 
-	return "temp";
+	//Choose starting gram
+	discrete_distribution<> kgram_dist(
+			gram_counts.begin(), gram_counts.end()
+			);
 
+	starting_gram = grams[kgram_dist(rng)];
+	output_text += starting_gram;
 
+	//Sequentially add new character to output
+	while (output_text.size() < length) {
+		string current_gram = output_text.substr(output_text.size()-k);
 
+		vector<char> characters;
+		vector<double> char_probs;
 
+		auto iterator = trans_probs.find(current_gram); 
+
+		if (iterator != trans_probs.end()) { //Uses conditional probabilities if the gram already exists
+			for (const auto& entry:(*iterator).second) {
+				characters.push_back(entry.first);
+				char_probs.push_back(entry.second);
+			}
+		}
+
+		if (characters.empty()) { //Handles the case if a gram has never occured before
+			if (alpha == 0.0) { // If no pseudocounts, stop writing.
+				break;
+			}
+
+			for (char c : alphabet) { // If pseudocounts are allowed, give every letter in the alphabet equal probability.
+				characters.push_back(c);
+				char_probs.push_back(1.0/alphabet.size());
+			}
+		}
+
+		discrete_distribution<> char_dist(
+			       	char_probs.begin(), char_probs.end()
+				);
+		output_text += characters[char_dist(rng)];
+	}
+
+	return output_text;
 
 }
 
@@ -84,6 +135,7 @@ void LanguageModel::print_trans() {
 	}
 }
 
+/*
 void LanguageModel::print_probs() {
 	for (const auto& elem:trans_probs) {
 		cout << elem.first << " : {" << endl;
@@ -93,4 +145,6 @@ void LanguageModel::print_probs() {
 		cout << "}" << endl;
 	}
 }
+*/
+
 
