@@ -10,7 +10,7 @@ using namespace std;
 class LanguageModel {
 	public:
 		//k-gram length
-		int k;
+		size_t k;
 
 		//map containing number of occurences of each k-gram
 		map<string, int> kgram_counts;
@@ -20,14 +20,17 @@ class LanguageModel {
 
 	//public:
 		//Constructor
-		LanguageModel(int k);
+		LanguageModel(size_t k);
 
 
 		//Calculates transition probabilites for all combinations of k-grams and characters
 		void train(const string &text);
 		
 		//Generates text of given length, using given pseudocount
-		string generate(int lenght, float alpha=0.0);
+		string generate(size_t lenght, float alpha=0.0);
+
+		//Debugging funtions
+		void print_counts();
 
 };
 
