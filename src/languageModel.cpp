@@ -17,7 +17,7 @@ LanguageModel::LanguageModel(size_t k) {
 }
 
 void LanguageModel::train(const string &text) {
-	if (text.size() < k) {
+	if (text.size() <= k) {
 		throw invalid_argument(
 				"training text too short. Text length must be greater than k."
 				);
@@ -29,9 +29,11 @@ void LanguageModel::train(const string &text) {
 	for (size_t i = 0; i <= text.size() - k; i++) {
 		string gram = text.substr(i, k);
 		kgram_counts[gram]++;
-
-		char next_char = text[i+k];
-		trans_counts[gram][next_char]++;
+		
+		if (i + k < text.size()) {
+			char next_char = text[i+k];
+			trans_counts[gram][next_char]++;
+		}
 
 	}
 	
@@ -68,13 +70,23 @@ string LanguageModel::generate(size_t length, double alpha) {
 
 	
 	//Calculate transition probabilities with pseudocount.
-	for (const auto& i:trans_counts) {
-		string gram = i.first;
-		for (const auto& j:i.second) {
-			char character = j.first;
-			trans_probs[gram][character] = 
-				(trans_counts[gram][character] + alpha)
-				/(kgram_counts[gram] + alpha*alphabet.size());
+	
+	for (const auto& [gram, counts] : trans_counts) {
+		size_t total = 0;
+		for (const auto& [character, count] : counts) {
+			total += count;
+		}
+		
+		for (char character : alphabet) {
+			size_t count = 0;
+			auto iterator = counts.find(character);
+			if (iterator != counts.end()) {
+				count = (*iterator).second;
+			}
+			
+			trans_probs[gram][character] =
+				(count + alpha) /
+				(total + alpha * alphabet.size());
 		}
 	}
 
