@@ -33,8 +33,35 @@ void LanguageModel::train(const string &text) {
 	}
 }
 
-void LanguageModel::generate(size_t length, float alpha = 0.0) {
+string LanguageModel::generate(size_t length, float alpha) {
+
+	//Check arguments are valid.
+	if (length < k) {
+		throw invalid_argument(
+			"Reqested length too short. Must be greater than or equal to k."
+			);
+	}
+
+	if (alpha < 0 ) {
+		throw invalid_argument(
+			"Pseudocount parameter alpha must be greater than or equal 0, got alpha = "+to_string(alpha)+"."
+			);
+	}
 	
+	//Calculate transition probabilities with pseudocount.
+	//map<string, map<char, float>> trans_probs;
+	for (const auto& i:trans_counts) {
+		string gram = i.first;
+		for (const auto& j:i.second) {
+			char character = j.first;
+			trans_probs[gram][character] = 
+				(trans_counts[gram][character] + alpha)
+				/(kgram_counts[gram] + alpha*alphabet.size());
+		}
+	}
+
+	return "temp";
+
 
 
 
@@ -56,3 +83,14 @@ void LanguageModel::print_trans() {
 		cout << "}" << endl;
 	}
 }
+
+void LanguageModel::print_probs() {
+	for (const auto& elem:trans_probs) {
+		cout << elem.first << " : {" << endl;
+		for (const auto& inner:elem.second) {
+			cout << "\t" << inner.first << " : " << inner.second << endl;
+		}
+		cout << "}" << endl;
+	}
+}
+
