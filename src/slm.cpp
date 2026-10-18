@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
 	int arg_shift = 0;
 
 	//Check arguments are valid
-	if (string(argv[1]) == "-a") {
+	if (argc > 1 && string(argv[1]) == "-a") {
 		try {
 			alpha = stod(argv[2]);
 			arg_shift = 2;
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 	}
 	
 	try {
-		length_input = stod(argv[3+arg_shift]);
+		length_input = stoi(argv[3+arg_shift]);
 	}
 
 	catch (const invalid_argument &e) {
